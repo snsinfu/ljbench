@@ -1,11 +1,6 @@
 dist: xenial
 language: c
 
-addons:
-  apt:
-    packages:
-      - clang
-
 stages:
   - test
 
