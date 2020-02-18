@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 static
 void parse_options(int argc, char **argv, struct config *config)
 {
-    enum { VERBOSE_LOG_INTRERVAL = 10000 };
+    enum { VERBOSE_LOG_INTRERVAL = 1000 };
 
     for (int ch; (ch = getopt(argc, argv, "t:n:s:vh")) != -1; ) {
         switch (ch) {
