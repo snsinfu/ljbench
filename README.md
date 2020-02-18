@@ -6,8 +6,9 @@ program models quick simulation programs written by non-experts.
 
 ## Usage
 
-Use Makefile task `run` to run a benchmark simulation. It prints the consumed
-time per simulation step in milliseconds. Lower the better.
+Use Makefile task `run` to run a benchmark simulation program. The simulation
+program prints the consumed time per simulation step in milliseconds. Lower the
+better.
 
 ```sh
 $ make run OPTFLAGS="-O2"
@@ -15,15 +16,24 @@ $ make run OPTFLAGS="-O2"
 1.238 ms/step
 ```
 
-Change flags and iterate. Be sure to `make clean` to remove the old executable.
+Change flags and iterate. Be sure to run `make clean` if you change optimization
+flags. You may want to use `make clean run`.
 
 ```sh
 $ make clean run OPTFLAGS="-O2 -march=native -mtune=native"
-1.181 ms/step
 ...
+1.181 ms/step
+
+$ make clean run OPTFLAGS="-O2 -march=native -mtune=native -ffast-math"
+...
+1.041 ms/step
+
+$ make clean run OPTFLAGS="-O2 -march=native -mtune=native -mno-avx"
+...
+1.223 ms/step
 ```
 
-After an executable being built the benchmark can be run multiple times by
+After an executable being built the benchmark can be run multiple times by just
 repeating `make run`.
 
 ```sh
