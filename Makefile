@@ -4,9 +4,11 @@ CFLAGS = \
   -Wextra \
   -Wconversion \
   -Wsign-conversion \
-  -O2 \
-  -march=native \
-  -mtune=native
+  $(DEFINES) \
+  $(OPTFLAGS)
+
+DEFINES = \
+  -D_POSIX_C_SOURCE=200112L
 
 LDFLAGS = \
   -lm
