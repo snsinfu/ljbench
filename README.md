@@ -1,8 +1,13 @@
 # ljbench
 
+[![Build Status][travis-badge]][travis-url]
+
 Molecular dynamics simulation of Lennard-Jones fluid for benchmarking. The code
 is _not_ manually optimized (i.e., no hand vectorization) so that the benchmark
 program models quick simulation programs written by non-experts.
+
+[travis-badge]: https://travis-ci.org/snsinfu/ljbench.svg?branch=master
+[travis-url]: https://travis-ci.org/snsinfu/ljbench
 
 ## Usage
 

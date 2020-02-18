@@ -1,4 +1,5 @@
 .*
 *.o
 !.gitignore
+!.travis.yml
 ljbench
