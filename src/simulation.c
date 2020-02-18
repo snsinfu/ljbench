@@ -112,7 +112,6 @@ void free_state(struct state *state)
     free(state->forces);
 }
 
-#include <stdio.h>
 
 static void simulate_motion(struct state *state, struct config const *config)
 {
