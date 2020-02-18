@@ -22,10 +22,13 @@ PRODUCT = \
   ljbench
 
 
-.PHONY: all clean
+.PHONY: all run clean
 
 all: $(PRODUCT)
 	@:
+
+run: $(PRODUCT)
+	@./$(PRODUCT) -n 500 -t 5000 | awk '{ printf("%.4g ms/step\n", $$1 * 1000) }'
 
 clean:
 	rm -f $(PRODUCT) $(OBJECTS)
