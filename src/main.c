@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,22 +10,26 @@
 #include "simulation.h"
 
 
-static void parse_options(int argc, char **argv, struct config *config);
-static long parse_option_int(char const *arg);
-static void show_usage();
+static void parse_options(
+    int argc, char **argv, struct config *config, clockid_t *clock_id
+);
+static long   parse_option_int(char const *arg);
+static void   show_usage();
+static double monoclock(clockid_t clock_id);
 
 
 int main(int argc, char **argv)
 {
     struct config config = default_config;
-    parse_options(argc, argv, &config);
+    clockid_t clock_id = CLOCK_PROCESS_CPUTIME_ID;
+    parse_options(argc, argv, &config, &clock_id);
 
-    clock_t start_clock = clock();
+    double start_clock = monoclock(clock_id);
     struct result result;
     run_simulation(&config, &result);
-    clock_t end_clock = clock();
+    double end_clock = monoclock(clock_id);
 
-    double elapsed_time = (double) (end_clock - start_clock) / (double) CLOCKS_PER_SEC;
+    double elapsed_time = end_clock - start_clock;
     double step_time = elapsed_time / (double) config.steps;
     printf("%g\t%g\n", step_time, result.mean_energy);
 
@@ -33,11 +38,13 @@ int main(int argc, char **argv)
 
 
 static
-void parse_options(int argc, char **argv, struct config *config)
+void parse_options(
+    int argc, char **argv, struct config *config, clockid_t *clock_id
+)
 {
     enum { VERBOSE_LOG_INTRERVAL = 1000 };
 
-    for (int ch; (ch = getopt(argc, argv, "t:n:s:vh")) != -1; ) {
+    for (int ch; (ch = getopt(argc, argv, "t:n:s:wvh")) != -1; ) {
         switch (ch) {
         case 't':
             config->steps = (int64_t) parse_option_int(optarg);
@@ -49,6 +56,10 @@ void parse_options(int argc, char **argv, struct config *config)
 
         case 's':
             config->seed = (uint64_t) parse_option_int(optarg);
+            break;
+
+        case 'w':
+            *clock_id = CLOCK_MONOTONIC;
             break;
 
         case 'v':
@@ -89,10 +100,23 @@ void show_usage()
         "  -t <steps>  number of simulation steps (default: 1000)\n"
         "  -n <parts>  number of particles (default: 500)\n"
         "  -s <seed>   random seed\n"
+        "  -w          measure wall time instead of cpu time\n"
         "  -v          enable verbose logging\n"
         "  -h          show this usage message and exit\n"
         "\n"
         "Larger <steps> and <parts> smooth out measurement variation.\n"
         "\n";
     fputs(usage, stderr);
+}
+
+
+static
+double monoclock(clockid_t clock_id)
+{
+    struct timespec t;
+
+    if (clock_gettime(clock_id, &t) == -1) {
+        return NAN;
+    }
+    return (double) t.tv_sec + (double) t.tv_nsec / 1e9;
 }
