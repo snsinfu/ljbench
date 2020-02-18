@@ -113,7 +113,8 @@ void free_state(struct state *state)
 }
 
 
-static void simulate_motion(struct state *state, struct config const *config)
+static
+void simulate_motion(struct state *state, struct config const *config)
 {
     assert(state);
     assert(config);
