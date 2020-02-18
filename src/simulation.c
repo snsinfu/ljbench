@@ -75,8 +75,8 @@ void init_state(struct state *state, struct config const *config)
 
     for (size_t i = 0; i < config->particle_count; i++) {
         int ix = (int) i;
-        int iy = (int) (ix / span);
-        int iz = (int) (iy / span);
+        int iy = ix / span;
+        int iz = iy / span;
         ix %= span;
         iy %= span;
 
