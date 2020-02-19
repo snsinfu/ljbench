@@ -7,7 +7,7 @@
 
 struct config
 {
-    size_t   particle_count;
+    size_t   particles;
     double   mass;
     double   epsilon;
     double   sigma;

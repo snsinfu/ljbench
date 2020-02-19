@@ -10,27 +10,48 @@
 #include "simulation.h"
 
 
-static void parse_options(
-    int argc, char **argv, struct config *config, clockid_t *clock_id
-);
-static long   parse_option_int(char const *arg);
-static void   show_usage();
-static double monoclock(clockid_t clock_id);
+struct options
+{
+    int64_t   steps;
+    size_t    particles;
+    uint64_t  seed;
+    clockid_t clock_id;
+    int       verbose;
+};
+
+enum
+{
+    DEFAULT_STEPS         = 5000,
+    DEFAULT_PARTICLES     = 500,
+    VERBOSE_LOG_INTRERVAL = 1000,
+};
+
+static struct config cook_config(struct options const *options);
+static void          parse_options(int argc, char **argv, struct options *options);
+static long          must_parse_number(char const *arg);
+static void          show_usage();
+static double        timestamp(clockid_t clock_id);
 
 
 int main(int argc, char **argv)
 {
-    struct config config = default_config;
-    clockid_t clock_id = CLOCK_PROCESS_CPUTIME_ID;
-    parse_options(argc, argv, &config, &clock_id);
+    struct options options = {
+        .steps     = DEFAULT_STEPS,
+        .particles = DEFAULT_PARTICLES,
+        .seed      = 0,
+        .clock_id  = CLOCK_PROCESS_CPUTIME_ID,
+        .verbose   = 0,
+    };
+    parse_options(argc, argv, &options);
 
-    double start_clock = monoclock(clock_id);
+    struct config config = cook_config(&options);
     struct result result;
+    double start_time = timestamp(options.clock_id);
     run_simulation(&config, &result);
-    double end_clock = monoclock(clock_id);
+    double end_time = timestamp(options.clock_id);
 
-    double elapsed_time = end_clock - start_clock;
-    double step_time = elapsed_time / (double) config.steps;
+    double elapsed_time = end_time - start_time;
+    double step_time = elapsed_time / (double) options.steps;
     printf("%g\t%g\n", step_time, result.mean_energy);
 
     return EXIT_SUCCESS;
@@ -38,32 +59,44 @@ int main(int argc, char **argv)
 
 
 static
-void parse_options(
-    int argc, char **argv, struct config *config, clockid_t *clock_id
-)
+struct config cook_config(struct options const *options)
 {
-    enum { VERBOSE_LOG_INTRERVAL = 1000 };
+    struct config config = default_config;
 
+    config.particles = options->particles;
+    config.steps = options->steps;
+
+    if (options->verbose > 0) {
+        config.log_interval = VERBOSE_LOG_INTRERVAL;
+    }
+
+    return config;
+}
+
+
+static
+void parse_options(int argc, char **argv, struct options *options)
+{
     for (int ch; (ch = getopt(argc, argv, "t:n:s:wvh")) != -1; ) {
         switch (ch) {
         case 't':
-            config->steps = (int64_t) parse_option_int(optarg);
+            options->steps = (int64_t) must_parse_number(optarg);
             break;
 
         case 'n':
-            config->particle_count = (size_t) parse_option_int(optarg);
+            options->particles = (size_t) must_parse_number(optarg);
             break;
 
         case 's':
-            config->seed = (uint64_t) parse_option_int(optarg);
+            options->seed = (uint64_t) must_parse_number(optarg);
             break;
 
         case 'w':
-            *clock_id = CLOCK_MONOTONIC;
+            options->clock_id = CLOCK_MONOTONIC;
             break;
 
         case 'v':
-            config->log_interval = VERBOSE_LOG_INTRERVAL;
+            options->verbose++;
             break;
 
         case 'h':
@@ -75,7 +108,7 @@ void parse_options(
 
 
 static
-long parse_option_int(char const *arg)
+long must_parse_number(char const *arg)
 {
     char *end;
     long num = strtol(arg, &end, 10);
@@ -91,7 +124,7 @@ static
 void show_usage()
 {
     static char const usage[] =
-        "usage: ljbench [-vh] [-t <steps>] [-n <parts>] [-s <seed>]\n"
+        "usage: ljbench [-wvh] [-t <steps>] [-n <parts>] [-s <seed>]\n"
         "\n"
         "Simulate Lennard-Jones fluid. Prints out mean elapsed time per step\n"
         "and final mean potential energy on exit.\n"
@@ -111,7 +144,7 @@ void show_usage()
 
 
 static
-double monoclock(clockid_t clock_id)
+double timestamp(clockid_t clock_id)
 {
     struct timespec t;
 

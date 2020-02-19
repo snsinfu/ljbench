@@ -11,15 +11,15 @@
 
 
 struct config const default_config = {
-    .particle_count = 500,
-    .mass           = 0.1,
-    .epsilon        = 1,
-    .sigma          = 0.1,
-    .temperature    = 1,
-    .timestep       = 1e-5,
-    .steps          = 1000,
-    .log_interval   = 0,
-    .seed           = 0,
+    .particles    = 500,
+    .mass         = 0.1,
+    .epsilon      = 1,
+    .sigma        = 0.1,
+    .temperature  = 1,
+    .timestep     = 1e-5,
+    .steps        = 1000,
+    .log_interval = 0,
+    .seed         = 0,
 };
 
 
@@ -52,7 +52,7 @@ void run_simulation(struct config const *config, struct result *result)
     struct state state;
     init_state(&state, config);
     simulate_motion(&state, config);
-    result->mean_energy = state.potential_energy / (double) config->particle_count;
+    result->mean_energy = state.potential_energy / (double) config->particles;
     free_state(&state);
 }
 
@@ -63,17 +63,17 @@ void init_state(struct state *state, struct config const *config)
     assert(state);
     assert(config);
 
-    state->positions = calloc(sizeof(struct vec), config->particle_count);
-    state->velocities = calloc(sizeof(struct vec), config->particle_count);
-    state->forces = calloc(sizeof(struct vec), config->particle_count);
+    state->positions = calloc(sizeof(struct vec), config->particles);
+    state->velocities = calloc(sizeof(struct vec), config->particles);
+    state->forces = calloc(sizeof(struct vec), config->particles);
     state->potential_energy = 0;
     state->time = 0;
     random_seed(&state->random, config->seed);
 
     // Distribute particles on a grid.
-    int span = (int) cbrt((double) config->particle_count);
+    int span = (int) cbrt((double) config->particles);
 
-    for (size_t i = 0; i < config->particle_count; i++) {
+    for (size_t i = 0; i < config->particles; i++) {
         int ix = (int) i;
         int iy = ix / span;
         int iz = iy / span;
@@ -89,7 +89,7 @@ void init_state(struct state *state, struct config const *config)
 
     // Draw random velocity from Maxwell-Boltzmann distribution.
     double const maxwell = sqrt(2 * config->temperature / config->mass);
-    for (size_t i = 0; i < config->particle_count; i++) {
+    for (size_t i = 0; i < config->particles; i++) {
         state->velocities[i] = (struct vec) {
             .x = maxwell * random_normal(&state->random),
             .y = maxwell * random_normal(&state->random),
@@ -121,7 +121,7 @@ void simulate_motion(struct state *state, struct config const *config)
 
     for (int64_t step = 0; step < config->steps; step++) {
         if (config->log_interval > 0 && step % config->log_interval == 0) {
-            double mean_energy = state->potential_energy / (double) config->particle_count;
+            double mean_energy = state->potential_energy / (double) config->particles;
             fprintf(stderr, "%g\t%g\n", state->time, mean_energy);
         }
 
@@ -130,7 +130,7 @@ void simulate_motion(struct state *state, struct config const *config)
         double dt = config->timestep;
         double dt_div_m = config->timestep / config->mass;
 
-        size_t n = config->particle_count;
+        size_t n = config->particles;
         struct vec *positions = state->positions;
         struct vec *velocities = state->velocities;
         struct vec const *forces = state->forces;
@@ -157,7 +157,7 @@ void compute_forcefield(struct state *state, struct config const *config)
     assert(state);
     assert(config);
 
-    size_t n = config->particle_count;
+    size_t n = config->particles;
     struct vec const *positions = state->positions;
     struct vec *forces = state->forces;
 
