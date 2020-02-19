@@ -65,6 +65,7 @@ struct config cook_config(struct options const *options)
 
     config.particles = options->particles;
     config.steps = options->steps;
+    config.seed = options->seed;
 
     if (options->verbose > 0) {
         config.log_interval = VERBOSE_LOG_INTRERVAL;
