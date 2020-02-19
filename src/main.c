@@ -51,8 +51,8 @@ int main(int argc, char **argv)
     double end_time = timestamp(options.clock_id);
 
     double elapsed_time = end_time - start_time;
-    double step_time = elapsed_time / (double) options.steps;
-    printf("%g\t%g\n", step_time, result.mean_energy);
+    double throughput = (double) options.steps / elapsed_time;
+    printf("%g step/s\t%g energy\n", throughput, result.energy);
 
     return EXIT_SUCCESS;
 }

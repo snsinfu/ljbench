@@ -28,7 +28,7 @@ all: $(PRODUCT)
 	@:
 
 run: $(PRODUCT)
-	@./$(PRODUCT) -n 500 -t 5000 | awk '{ printf("%.4g ms/step\n", $$1 * 1000) }'
+	@./$(PRODUCT) -n 500 -t 5000 | awk '{ print $$1 " step/s" }'
 
 clean:
 	rm -f $(PRODUCT) $(OBJECTS)

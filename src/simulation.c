@@ -52,7 +52,7 @@ void run_simulation(struct config const *config, struct result *result)
     struct state state;
     init_state(&state, config);
     simulate_motion(&state, config);
-    result->mean_energy = state.potential_energy / (double) config->particles;
+    result->energy = state.potential_energy;
     free_state(&state);
 }
 
@@ -121,8 +121,7 @@ void simulate_motion(struct state *state, struct config const *config)
 
     for (int64_t step = 0; step < config->steps; step++) {
         if (config->log_interval > 0 && step % config->log_interval == 0) {
-            double mean_energy = state->potential_energy / (double) config->particles;
-            fprintf(stderr, "%g\t%g\n", state->time, mean_energy);
+            fprintf(stderr, "%g\t%g\n", state->time, state->potential_energy);
         }
 
         // Velocity Verlet scheme.

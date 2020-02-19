@@ -20,7 +20,7 @@ struct config
 
 struct result
 {
-    double mean_energy;
+    double energy;
 };
 
 extern struct config const default_config;

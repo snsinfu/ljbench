@@ -12,13 +12,12 @@ program models quick simulation programs written by non-experts.
 ## Usage
 
 Use Makefile task `run` to run a benchmark simulation program. The simulation
-program prints the consumed time per simulation step in milliseconds. Lower the
-better.
+program prints the throughput as a performance measure (higher the better).
 
 ```sh
 $ make run OPTFLAGS="-O2"
 ...
-1.238 ms/step
+807.754 step/s
 ```
 
 Change flags and iterate. Be sure to run `make clean` if you change optimization
@@ -27,15 +26,15 @@ flags. You may want to use `make clean run`.
 ```sh
 $ make clean run OPTFLAGS="-O2 -march=native -mtune=native"
 ...
-1.181 ms/step
+846.74 step/s
 
 $ make clean run OPTFLAGS="-O2 -march=native -mtune=native -ffast-math"
 ...
-1.041 ms/step
+960.615 step/s
 
 $ make clean run OPTFLAGS="-O2 -march=native -mtune=native -mno-avx"
 ...
-1.223 ms/step
+817.661 step/s
 ```
 
 After an executable being built the benchmark can be run multiple times by just
@@ -43,11 +42,11 @@ repeating `make run`.
 
 ```sh
 $ make run
-1.164 ms/step
+859.106 step/s
 $ make run
-1.167 ms/step
+856.898 step/s
 $ make run
-1.194 ms/step
+837.521 step/s
 ```
 
 ## Examples
