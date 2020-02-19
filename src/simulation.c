@@ -88,7 +88,7 @@ void init_state(struct state *state, struct config const *config)
     }
 
     // Draw random velocity from Maxwell-Boltzmann distribution.
-    double const maxwell = sqrt(2 * config->temperature / config->mass);
+    double const maxwell = sqrt(config->temperature / config->mass);
     for (size_t i = 0; i < config->particles; i++) {
         state->velocities[i] = (struct vec) {
             .x = maxwell * random_normal(&state->random),
