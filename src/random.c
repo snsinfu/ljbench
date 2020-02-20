@@ -31,7 +31,7 @@ uint64_t random_next(struct random *random)
 
     random->a = random->b ^ (random->b >> SFC64_RSHIFT);
     random->b = random->c + (random->c << SFC64_LSHIFT);
-    random->c = ((random->c << SFC64_ROT) | random->c >> (64 - SFC64_ROT)) + output;
+    random->c = ((random->c << SFC64_ROT) | (random->c >> (64 - SFC64_ROT))) + output;
     random->counter++;
 
     return output;
